@@ -4,15 +4,31 @@ var timer = document.querySelector("#time");
 var choicesEL = document.querySelector("#choices");
 var submitButton = document.querySelector("#submit");
 var startButton = document.querySelector("#start");
-var initials = document.querySelector("#initials");
+var initialsEl = document.querySelector("#initials");
 var feedback = document.querySelector("#feedback");
+var clearScoreBtn = document.getElementById("clear");
 
+// Play sound on answer
+function correctSound() {
+  var audio = document.getElementById("correctSound");
+  audio.play();
+}
+function incorrectSound() {
+  var audio = document.getElementById("incorrectSound");
+  audio.play();
+}
 //Set the Quiz variables
 var currentQuestionIndex = 0; // start question at Index 0 (1st question)
-var time = questions.length * 10; //10 seconds per question
+var timePerQuestion = 5;
+var time = timePerQuestion * 10; //10 seconds per question
 var timerId; //
 
-//start Quiz Function
+// start quiz
+document.getElementById("start").addEventListener("click", function () {
+  start();
+});
+
+//start Quiz Function - Start Screen
 function startQuiz() {
   var startScreen = document.getElementById("start-screen"); // Coding Quiz Chalenge Page
   startScreen.setAttribute("class", "hide"); // hide start screen
@@ -56,6 +72,8 @@ function questionClick() {
   if (this.value !== questions[currentQuestionIndex].answer) {
     // penalize time
     time -= 10;
+    //play incorrect Sound
+    incorrectSound();
 
     if (time < 0) {
       time = 0;
@@ -66,6 +84,8 @@ function questionClick() {
     feedback.style.color = "red";
     feedback.style.fontSize = "400%";
   } else {
+    //play correct Sound
+    correctSound();
     feedback.textContent = "Correct!";
     feedback.style.color = "green";
     feedback.style.fontSize = "400%";
@@ -97,8 +117,8 @@ function quizEnd() {
   endScreen.removeAttribute("class");
 
   // show final score
-  var finalScore = document.getElementById("final-score");
-  finalScore.textContent = time;
+  var highscores = document.getElementById("final-score");
+  highscores.textContent = time; //textContent = returns the text content of an element (final-score)
 
   // hide questions section
   questionsEL.setAttribute("class", "hide");
@@ -115,77 +135,42 @@ function clockTick() {
   }
 }
 
-function saveHighscore() {
-  // get value of input box
-  var initials = initials.value.trim();
+//NEW CODE
 
-  if (initials !== "") {
-    // get saved scores from localstorage, or if not any, set to empty array
-    var highscores =
-      JSON.parse(window.localStorage.getItem("highscores")) || [];
+submitButton.addEventListener("click", function () {
+  const initials = initialsEl.value.trim();
 
-    // format new score object for current user
-    var newScore = {
-      score: time,
-      initials: initials,
-    };
-
-    // save to localstorage
-    highscores.push(newScore);
-    window.localStorage.setItem("highscores", JSON.stringify(highscores));
-
-    // redirect to next page
-    window.location.href = "highscores.html";
+  // don't allow empty input values
+  if (!initials) {
+    return;
   }
+
+  const highscores = JSON.parse(localStorage.getItem("highscores")) || [];
+  const score = {
+    initials,
+    time,
+  };
+
+  highscores.push(score);
+  localStorage.setItem("highscores", JSON.stringify(highscores));
+
+  // redirect to highscores page
+  location.href = "highscores.html";
+});
+
+//Adding Highscores to highscores.html
+
+//create a function that loops through all the arrays stored in the highscores local storage
+function highscoresList () {
+  for (var i = 0; i < highscores.length; 1++); {
+
+var Score = highscores[i].initials + highscores[i].time
+//create li element
+var newScore = document.createElement("li");
+//append score to li element
+newScore.textContent = text;
+scoreCard.appendChild(newScore);
+}
 }
 
-function checkForEnter(event) {
-  // "13" represents the enter key
-  if (event.key === "Enter") {
-    saveHighscore();
-  }
-}
-
-// submit initials
-submitButton.onclick = saveHighscore;
-
-// start quiz
-startButton.onclick = startQuiz;
-
-initials.onkeyup = checkForEnter;
-
-//           //event listener for user selection
-//           olEl.addEventListener("click", function (event) {
-
-//             console.log(event.target.innerHTML)
-//             //if the user selection matches the correct answer
-//             if (event.target.innerHTML === quizQuestions[currentQuestion].correctAnswer) {
-//                 //tells the user they got it right
-//                 feedbackP.textContent = "Correct";
-//                 //increases the score
-//                 score++;
-//                 //increases the question index
-//                 currentQuestion++;
-//                 //runs the function again with the next question
-//                 return askQuestion(currentQuestion);
-
-//                 //if the user selection does not match the correct answer
-//             } else {
-//                 //tells the user they were wrong
-//                 feedbackP.textContent = "Wrong";
-//                 //subtracts time from their timer
-//                 secondsLeft = secondsLeft - 10;
-//                 //increases the score index
-//                 currentQuestion++;
-//                 //runs the function again with the next question
-//                 return askQuestion(currentQuestion);
-//             };
-//         });
-//         //once there are no more questions left
-//     } else {
-//         //ends the game
-//         secondsLeft = 0
-
-//     };
-
-// };
+highscoresList ()

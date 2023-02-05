@@ -1,4 +1,4 @@
-let questions = [
+var questions = [
   {
     title: "What does CSS stand for?", //title
     choices: [
